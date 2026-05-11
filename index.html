@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة Proxima</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator-top">
+            <div class="calculator-brand">
+                <div class="app-title">Proxima</div>
+                <div class="app-tagline">حاسبة علمية متقدمة</div>
+            </div>
+            <div class="top-actions">
+                <button class="btn theme-toggle" onclick="toggleTheme()">🌙</button>
+                <button class="btn history-toggle" onclick="showHistory()" aria-label="عرض السجل">📜</button>
+                <button class="btn notebook-toggle" onclick="toggleNotebook()" aria-label="فتح المفكرة">📒</button>
+            </div>
+        </div>
+        <div class="history" id="history"></div>
+        <!-- History Modal -->
+        <div class="modal" id="historyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>سجل العمليات الحسابية</h3>
+                    <button class="modal-close" onclick="closeHistoryModal()">×</button>
+                </div>
+                <div class="modal-body" id="historyList">
+                    <!-- History items will be populated here -->
+                </div>
+            </div>
+        </div>
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result"></div>
+        </div>
+        <div class="operations">
+            <button class="btn clear" onclick="clearDisplay()">C</button>
+            <button class="btn backspace" onclick="backspace()">⌫</button>
+            <button class="btn operator" onclick="appendToDisplay('(')">(</button>
+            <button class="btn operator" onclick="appendToDisplay(')')">)</button>
+            <button class="btn operator" onclick="appendToDisplay('%')">%</button>
+            
+            <button class="btn scientific" onclick="appendToDisplay('sin(')">sin</button>
+            <button class="btn scientific" onclick="appendToDisplay('cos(')">cos</button>
+            <button class="btn scientific" onclick="appendToDisplay('tan(')">tan</button>
+            <button class="btn scientific" onclick="appendToDisplay('log(')">log</button>
+            <button class="btn scientific" onclick="appendToDisplay('ln(')">ln</button>
+            
+            <button class="btn scientific" onclick="appendToDisplay('sqrt(')">√</button>
+            <button class="btn scientific" onclick="appendToDisplay('^')">^</button>
+            <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+            <button class="btn operator" onclick="appendToDisplay('-')">−</button>
+            <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+            <button class="btn operator" onclick="appendToDisplay('/')">÷</button>
+            <button class="btn equals" onclick="calculate()">=</button>
+        </div>
+        <div class="numbers">
+            <button class="btn number" onclick="appendToDisplay('7')">7</button>
+            <button class="btn number" onclick="appendToDisplay('8')">8</button>
+            <button class="btn number" onclick="appendToDisplay('9')">9</button>
+            
+            <button class="btn number" onclick="appendToDisplay('4')">4</button>
+            <button class="btn number" onclick="appendToDisplay('5')">5</button>
+            <button class="btn number" onclick="appendToDisplay('6')">6</button>
+            
+            <button class="btn number" onclick="appendToDisplay('1')">1</button>
+            <button class="btn number" onclick="appendToDisplay('2')">2</button>
+            <button class="btn number" onclick="appendToDisplay('3')">3</button>
+            
+            <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+            <button class="btn decimal" onclick="appendToDisplay('.')">.</button>
+        </div>
+    </div>
+
+    <!-- Smart Notebook Workspace -->
+    <div class="notebook-panel" id="notebookPanel">
+        <div class="notebook-frame">
+            <!-- Floating Header -->
+            <div class="notebook-header floating-header" id="notebookHeader">
+                <div class="header-content">
+                    <div class="workspace-title">
+                        <span class="notebook-title">مساحة العمل الذكية</span>
+                        <span class="header-subtitle">دفتر ملاحظات احترافي ذكي</span>
+                    </div>
+                    <div class="header-controls">
+                        <button class="header-btn" onclick="notebookUndo()" title="تراجع"><span>↶</span></button>
+                        <button class="header-btn" onclick="notebookRedo()" title="إعادة"><span>↷</span></button>
+                        <button class="header-btn" onclick="showWorkspaceHistory()" title="السجل"><span>📜</span></button>
+                        <button class="header-btn" onclick="expandNotebook()" title="تكبير"><span>⛶</span></button>
+                        <button class="header-btn" onclick="minimizeNotebook()" title="تصغير"><span>−</span></button>
+                        <button class="header-btn close" onclick="closeNotebook()"><span>×</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Unified Canvas -->
+            <div class="workspace-container">
+                <!-- Left Floating Toolbar -->
+                <div class="floating-toolbar collapsed" id="floatingToolbar" onmouseenter="showToolbar()" onmouseleave="scheduleHideToolbar()">
+                    <button type="button" class="toolbar-toggle" onclick="toggleToolbarExpand()" title="شريط الأدوات الذكية">☰</button>
+                    <div class="toolbar-group main-tools">
+                        <button type="button" class="tool-btn active" data-tool="pen" title="الكتابة" onclick="setWorkspaceTool('pen', 'كتابة')">✒️</button>
+                        <button type="button" class="tool-btn" data-tool="brush" title="الرسم" onclick="setWorkspaceTool('brush', 'رسم')">🖌️</button>
+                        <button type="button" class="tool-btn" data-tool="select" title="التعديل" onclick="setWorkspaceTool('select', 'تعديل')">🛠️</button>
+                        <button type="button" class="tool-btn" data-tool="symbols" title="الرموز" onclick="toggleSymbolsPanel()">🔣</button>
+                        <button type="button" class="tool-btn" data-tool="shapes" title="الأشكال" onclick="toggleShapesMenu()">⬜</button>
+                        <button type="button" class="tool-btn" data-tool="text" title="النص" onclick="setWorkspaceTool('text', 'نص')">🔤</button>
+                    </div>
+                    <div class="toolbar-labels">
+                        <span class="tool-status">أداة مفعلة:</span>
+                        <span class="tool-name" id="workspaceToolLabel">كتابة</span>
+                    </div>
+                    <div class="toolbar-settings-panel" id="toolSettingsPanel">
+                        <div class="setting-row">
+                            <label>الحجم</label>
+                            <input type="range" min="1" max="24" value="4" id="toolSizeSlider" onchange="updateWorkspaceBrushSize(this.value)" />
+                        </div>
+                        <div class="setting-row">
+                            <label>الشفافية</label>
+                            <input type="range" min="20" max="100" value="100" id="toolOpacitySlider" onchange="updateWorkspaceOpacity(this.value)" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Canvas Area -->
+                <div class="canvas-wrapper">
+                    <canvas id="workspaceCanvas" class="workspace-canvas"></canvas>
+                    <div class="canvas-overlay" id="canvasOverlay"></div>
+                </div>
+
+                <!-- Color Picker Menu -->
+                <div class="color-picker-menu" id="colorPickerMenu">
+                    <button type="button" class="color-option" data-color="#5cc7ff" style="background:#5cc7ff;" onclick="setWorkspaceColor('#5cc7ff')"></button>
+                    <button type="button" class="color-option" data-color="#ffd166" style="background:#ffd166;" onclick="setWorkspaceColor('#ffd166')"></button>
+                    <button type="button" class="color-option" data-color="#ff6b6b" style="background:#ff6b6b;" onclick="setWorkspaceColor('#ff6b6b')"></button>
+                    <button type="button" class="color-option" data-color="#9b5de5" style="background:#9b5de5;" onclick="setWorkspaceColor('#9b5de5')"></button>
+                    <button type="button" class="color-option" data-color="#06d6a0" style="background:#06d6a0;" onclick="setWorkspaceColor('#06d6a0')"></button>
+                    <button type="button" class="color-option" data-color="#fff" style="background:#fff;border:1px solid #555;" onclick="setWorkspaceColor('#fff')"></button>
+                </div>
+
+                <!-- Shapes Menu -->
+                <div class="shapes-menu" id="shapesMenu">
+                    <button type="button" class="shape-btn" onclick="insertShape('circle')" title="دائرة">●</button>
+                    <button type="button" class="shape-btn" onclick="insertShape('square')" title="مربع">■</button>
+                    <button type="button" class="shape-btn" onclick="insertShape('triangle')" title="مثلث">▲</button>
+                    <button type="button" class="shape-btn" onclick="insertShape('line')" title="خط">—</button>
+                    <button type="button" class="shape-btn" onclick="insertShape('arrow')" title="سهم">→</button>
+                </div>
+
+                <!-- Quick Symbols Panel -->
+                <div class="math-symbols-panel" id="mathSymbolsPanel">
+                    <div class="symbol-panel-header">
+                        <button type="button" class="symbol-tab active" data-category="math" onclick="setSymbolCategory('math')">رياضيات</button>
+                        <button type="button" class="symbol-tab" data-category="engineering" onclick="setSymbolCategory('engineering')">هندسة</button>
+                        <button type="button" class="symbol-tab" data-category="special" onclick="setSymbolCategory('special')">خاص</button>
+                        <button type="button" class="symbol-tab" data-category="greek" onclick="setSymbolCategory('greek')">يوناني</button>
+                        <button type="button" class="symbol-tab" data-category="alnum" onclick="setSymbolCategory('alnum')">حروف وأرقام</button>
+                    </div>
+                    <div class="symbols-grid symbol-category active" data-category="math">
+                        <button type="button" class="symbol-btn" onclick="insertSymbolToCanvas('π')">π</button>
+                        <button type="button" class="symbol-btn" onclick="insertSymbolToCanvas('√')">√</button>
+                        <button type="button" class="symbol-btn" onclick="insertSymbolToCanvas('∑')">∑</button>
+                        <button type="button" class="symbol-btn" onclick="insertSymbolToCanvas('∆')">∆</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('∞')">∞</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('≤')">≤</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('≥')">≥</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('≠')">≠</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('±')">±</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('÷')">÷</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('×')">×</button>
+                    </div>
+                    <div class="symbols-grid symbol-category" data-category="engineering">
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('Ω')">Ω</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('µ')">µ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('°')">°</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('Φ')">Φ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('∠')">∠</button>
+                    </div>
+                    <div class="symbols-grid symbol-category" data-category="special">
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('@')">@</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('#')">#</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('&')">&</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('%')">%</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('$')">$</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('€')">€</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('£')">£</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('¥')">¥</button>
+                    </div>
+                    <div class="symbols-grid symbol-category" data-category="greek">
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('α')">α</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('β')">β</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('γ')">γ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('δ')">δ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('ε')">ε</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('θ')">θ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('λ')">λ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('σ')">σ</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('ω')">ω</button>
+                    </div>
+                    <div class="symbols-grid symbol-category" data-category="alnum">
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('A')">A</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('B')">B</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('C')">C</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('D')">D</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('E')">E</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('F')">F</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('G')">G</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('H')">H</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('I')">I</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('J')">J</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('K')">K</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('L')">L</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('M')">M</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('N')">N</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('O')">O</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('P')">P</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('Q')">Q</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('R')">R</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('S')">S</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('T')">T</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('U')">U</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('V')">V</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('W')">W</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('X')">X</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('Y')">Y</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('Z')">Z</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('0')">0</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('1')">1</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('2')">2</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('3')">3</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('4')">4</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('5')">5</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('6')">6</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('7')">7</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('8')">8</button>
+                        <button class="symbol-btn" onclick="insertSymbolToCanvas('9')">9</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Smart Bar -->
+            <div class="bottom-smart-bar">
+                <button type="button" class="smart-btn" onclick="insertSymbolsPanel()" title="رموز">📐</button>
+                <button type="button" class="smart-btn" onclick="insertQuickFormula()" title="معادلات">∑</button>
+                <button type="button" class="smart-btn" onclick="createStickyNote()" title="ملاحظة لاصقة">📌</button>
+                <button type="button" class="smart-btn" onclick="saveWorkspaceSnapshot()" title="حفظ">💾</button>
+                <button type="button" class="smart-btn" onclick="exportWorkspace()" title="تصدير">📤</button>
+                <button type="button" class="smart-btn" onclick="clearWorkspace()" title="مسح">🗑️</button>
+            </div>
+        </div>
+
+        <!-- Workspace History Modal -->
+        <div class="modal" id="workspaceHistoryModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>سجل عمليات المساحة</h3>
+                    <button class="modal-close" onclick="closeWorkspaceHistoryModal()">×</button>
+                </div>
+                <div class="modal-body" id="workspaceHistoryList">
+                    <!-- Workspace history items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
