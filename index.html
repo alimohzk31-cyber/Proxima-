@@ -21,11 +21,11 @@
         </div>
         <div class="history" id="history"></div>
         <!-- History Modal -->
-        <div class="modal" id="historyModal">
+        <div class="modal" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyTitle" aria-hidden="true">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>سجل العمليات الحسابية</h3>
-                    <button class="modal-close" onclick="closeHistoryModal()">×</button>
+                    <h3 id="historyTitle">سجل العمليات الحسابية</h3>
+                    <button class="modal-close" onclick="closeHistoryModal()" aria-label="إغلاق">×</button>
                 </div>
                 <div class="modal-body" id="historyList">
                     <!-- History items will be populated here -->
@@ -36,42 +36,39 @@
             <div class="expression" id="expression"></div>
             <div class="result" id="result"></div>
         </div>
-        <div class="operations">
-            <button class="btn clear" onclick="clearDisplay()">C</button>
-            <button class="btn backspace" onclick="backspace()">⌫</button>
-            <button class="btn operator" onclick="appendToDisplay('(')">(</button>
-            <button class="btn operator" onclick="appendToDisplay(')')">)</button>
-            <button class="btn operator" onclick="appendToDisplay('%')">%</button>
-            
-            <button class="btn scientific" onclick="appendToDisplay('sin(')">sin</button>
-            <button class="btn scientific" onclick="appendToDisplay('cos(')">cos</button>
-            <button class="btn scientific" onclick="appendToDisplay('tan(')">tan</button>
-            <button class="btn scientific" onclick="appendToDisplay('log(')">log</button>
-            <button class="btn scientific" onclick="appendToDisplay('ln(')">ln</button>
-            
-            <button class="btn scientific" onclick="appendToDisplay('sqrt(')">√</button>
-            <button class="btn scientific" onclick="appendToDisplay('^')">^</button>
-            <button class="btn operator" onclick="appendToDisplay('+')">+</button>
-            <button class="btn operator" onclick="appendToDisplay('-')">−</button>
-            <button class="btn operator" onclick="appendToDisplay('*')">×</button>
-            <button class="btn operator" onclick="appendToDisplay('/')">÷</button>
-            <button class="btn equals" onclick="calculate()">=</button>
-        </div>
-        <div class="numbers">
-            <button class="btn number" onclick="appendToDisplay('7')">7</button>
-            <button class="btn number" onclick="appendToDisplay('8')">8</button>
-            <button class="btn number" onclick="appendToDisplay('9')">9</button>
-            
-            <button class="btn number" onclick="appendToDisplay('4')">4</button>
-            <button class="btn number" onclick="appendToDisplay('5')">5</button>
-            <button class="btn number" onclick="appendToDisplay('6')">6</button>
-            
-            <button class="btn number" onclick="appendToDisplay('1')">1</button>
-            <button class="btn number" onclick="appendToDisplay('2')">2</button>
-            <button class="btn number" onclick="appendToDisplay('3')">3</button>
-            
-            <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
-            <button class="btn decimal" onclick="appendToDisplay('.')">.</button>
+        <div class="calculator-body">
+            <div class="operations">
+                <button class="btn clear" onclick="clearDisplay()">C</button>
+                <button class="btn backspace" onclick="backspace()">⌫</button>
+                <button class="btn operator" onclick="appendToDisplay('(')">(</button>
+                <button class="btn operator" onclick="appendToDisplay(')')">)</button>
+                <button class="btn operator" onclick="appendToDisplay('%')">%</button>
+                <button class="btn scientific" onclick="appendToDisplay('sin(')">sin</button>
+                <button class="btn scientific" onclick="appendToDisplay('cos(')">cos</button>
+                <button class="btn scientific" onclick="appendToDisplay('tan(')">tan</button>
+                <button class="btn scientific" onclick="appendToDisplay('log(')">log</button>
+                <button class="btn scientific" onclick="appendToDisplay('ln(')">ln</button>
+                <button class="btn scientific" onclick="appendToDisplay('sqrt(')">√</button>
+                <button class="btn scientific" onclick="appendToDisplay('^')">^</button>
+                <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                <button class="btn operator" onclick="appendToDisplay('-')">−</button>
+                <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                <button class="btn operator" onclick="appendToDisplay('/')">÷</button>
+                <button class="btn equals" onclick="calculate()">=</button>
+            </div>
+            <div class="numbers">
+                <button class="btn number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+                <button class="btn decimal" onclick="appendToDisplay('.')">.</button>
+            </div>
         </div>
     </div>
 
@@ -253,11 +250,11 @@
         </div>
 
         <!-- Workspace History Modal -->
-        <div class="modal" id="workspaceHistoryModal">
+        <div class="modal" id="workspaceHistoryModal" role="dialog" aria-modal="true" aria-labelledby="workspaceHistoryTitle" aria-hidden="true">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>سجل عمليات المساحة</h3>
-                    <button class="modal-close" onclick="closeWorkspaceHistoryModal()">×</button>
+                    <h3 id="workspaceHistoryTitle">سجل عمليات المساحة</h3>
+                    <button class="modal-close" onclick="closeWorkspaceHistoryModal()" aria-label="إغلاق">×</button>
                 </div>
                 <div class="modal-body" id="workspaceHistoryList">
                     <!-- Workspace history items will be populated here -->

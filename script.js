@@ -17,6 +17,45 @@ function updateDisplay() {
 
 // Append to expression
 function appendToDisplay(value) {
+    const operators = ['+', '-', '*', '/', '%', '^'];
+    const functions = ['sin(', 'cos(', 'tan(', 'log(', 'ln(', 'sqrt('];
+
+    // Prevent duplicate function button presses
+    if (functions.includes(value) && expression.endsWith(value)) {
+        return;
+    }
+
+    const lastChar = expression.slice(-1);
+    const isValueOperator = operators.includes(value) || value === '%';
+    const isLastOperator = operators.includes(lastChar) || lastChar === '%';
+
+    if (isValueOperator) {
+        if (!expression) {
+            if (value === '-') {
+                expression = value;
+                updateDisplay();
+                saveAppState();
+            }
+            return;
+        }
+
+        if (isLastOperator) {
+            if (lastChar === value) {
+                return;
+            }
+            expression = expression.slice(0, -1) + value;
+            updateDisplay();
+            calculatePreview();
+            saveAppState();
+            return;
+        }
+    }
+
+    // Prevent duplicate decimal in the same number
+    if (value === '.' && /\.[0-9]*$/.test(expression)) {
+        return;
+    }
+
     expression += value;
     updateDisplay();
     calculatePreview();
@@ -122,9 +161,11 @@ function clearHistory() {
 
 function showHistory() {
     updateHistoryModal();
-    document.getElementById('historyModal').style.display = 'block';
-    // Close modal when clicking outside
-    document.getElementById('historyModal').onclick = function(event) {
+    const modal = document.getElementById('historyModal');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    modal.onclick = function(event) {
         if (event.target === this) {
             closeHistoryModal();
         }
@@ -132,18 +173,26 @@ function showHistory() {
 }
 
 function closeHistoryModal() {
-    document.getElementById('historyModal').style.display = 'none';
+    const modal = document.getElementById('historyModal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
 }
 
 function closeWorkspaceHistoryModal() {
-    document.getElementById('workspaceHistoryModal').style.display = 'none';
+    const modal = document.getElementById('workspaceHistoryModal');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
 }
 
 function showWorkspaceHistory() {
     updateWorkspaceHistoryModal();
-    document.getElementById('workspaceHistoryModal').style.display = 'block';
-    // Close modal when clicking outside
-    document.getElementById('workspaceHistoryModal').onclick = function(event) {
+    const modal = document.getElementById('workspaceHistoryModal');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    modal.onclick = function(event) {
         if (event.target === this) {
             closeWorkspaceHistoryModal();
         }
