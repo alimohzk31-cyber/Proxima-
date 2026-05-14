@@ -1,3 +1,67 @@
+.notepad-header-save {
+    background: linear-gradient(135deg, #5cc7ff, #53a7ff);
+    border: none;
+    border-radius: 10px;
+    color: #0b1626;
+    font-size: 1.15rem;
+    width: 38px;
+    height: 38px;
+    margin-right: 8px;
+    margin-left: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(92,199,255,0.08);
+}
+.notepad-header-save:hover {
+    background: linear-gradient(135deg, #53a7ff, #5cc7ff);
+}
+.symbol-toggle-btn {
+    padding: 8px 18px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #5cc7ff, #53a7ff);
+    color: #0b1626;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(92,199,255,0.08);
+}
+.symbol-toggle-btn:hover {
+    background: linear-gradient(135deg, #53a7ff, #5cc7ff);
+}
+
+.notepad-symbols-popup {
+    position: absolute;
+    top: 54px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 3000;
+    background: rgba(10, 18, 34, 0.98);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 18px 10px 10px 10px;
+    width: min(98vw, 420px);
+    max-height: 60vh;
+    overflow-y: auto;
+    display: none;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.notepad-tools {
+    position: relative;
+}
 /* Reset and base styles */
 * {
     margin: 0;
@@ -127,22 +191,6 @@ body.dark .calculator {
     color: rgba(255, 255, 255, 0.74);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-}
-
-.notebook-toggle {
-    background: rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.notebook-toggle:hover {
-    transform: translateY(-2px) scale(1.02);
-    background: rgba(255, 255, 255, 0.22);
 }
 
 .notebook-panel {
@@ -1154,6 +1202,328 @@ body.dark .btn {
     }
 }
 
+/* Notepad Modal */
+.notepad-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.notepad-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notepad-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+}
+
+.notepad-content {
+    position: relative;
+    width: min(95vw, 480px);
+    max-width: 95vw;
+    max-height: min(85vh, 550px);
+    border-radius: 22px;
+    background: rgba(10, 18, 34, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    transition: transform 0.25s ease;
+}
+
+.notepad-modal.open .notepad-content {
+    transform: scale(1);
+}
+
+.notepad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(13, 25, 44, 0.98), rgba(25, 38, 61, 0.98));
+}
+
+.notepad-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f4f8ff;
+}
+
+.notepad-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    color: #f4f8ff;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.notepad-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
+}
+
+.notepad-body {
+    flex: 1;
+    padding: 12px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.notepad-textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #5cc7ff;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 12px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.notepad-textarea:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(92, 199, 255, 0.3);
+}
+
+.notepad-footer {
+    padding: 12px 16px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 22px 22px;
+}
+
+.notepad-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.symbols-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.symbols-title {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+}
+
+.symbols-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    gap: 6px;
+}
+
+.symbol-btn {
+    width: 100%;
+    min-width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #eef7ff;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.symbol-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 199, 255, 0.2);
+}
+
+.symbol-btn:active {
+    transform: translateY(0);
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tool-group label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    min-width: 50px;
+}
+
+.notepad-select {
+    flex: 1;
+    min-width: 100px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #eef7ff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notepad-select:hover,
+.notepad-select:focus {
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.color-picker {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.color-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.notepad-save-btn {
+    align-self: flex-end;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #5cc7ff, #53a7ff);
+    color: #0b1626;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    min-width: 100px;
+}
+
+.notepad-save-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(92, 199, 255, 0.25);
+}
+
+.notepad-save-btn:active {
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+.notepad-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notepad-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+}
+
+.notepad-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 8px 8px 10px;
+        align-items: flex-start;
+    }
+
+    .calculator {
+        max-width: 100%;
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+        height: calc(100vh - 16px);
+        max-height: none;
+    }
+
+    .calculator-top {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .top-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .operations {
+        gap: 6px;
+    }
+
+    .numbers {
+        gap: 8px;
+    }
+
+    .operations .btn,
+    .numbers .btn {
+        min-height: 48px;
+    }
+
+    .notepad-content {
+        width: min(96vw, 440px);
+        max-height: 90vh;
+    }
+
+    .notepad-footer {
+        padding: 10px 14px 14px;
+    }
+
+    .symbols-grid {
+        gap: 4px;
+    }
+
+    .symbol-btn {
+        min-height: 34px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .calculator {
+        max-width: 420px;
+        height: calc(100vh - 24px);
+    }
+
+    .notepad-content {
+        width: min(85vw, 500px);
+        max-height: 88vh;
+    }
+}
+
 @media (min-width: 1025px) {
     /* Desktop */
     .calculator {
@@ -1295,7 +1665,7 @@ body.modal-open {
     gap: 8px;
 }
 
-..history-actions button {
+.history-actions button {
     background: rgba(255, 255, 255, 0.08);
     border: none;
     width: 44px;

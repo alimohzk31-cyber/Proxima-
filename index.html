@@ -16,7 +16,7 @@
             <div class="top-actions">
                 <button class="btn theme-toggle" onclick="toggleTheme()">🌙</button>
                 <button class="btn history-toggle" onclick="showHistory()" aria-label="عرض السجل">📜</button>
-                <button class="btn notebook-toggle" onclick="toggleNotebook()" aria-label="فتح المفكرة">📒</button>
+                <button class="btn notepad-toggle" onclick="toggleNotepad()" aria-label="فتح المفكرة">📝</button>
             </div>
         </div>
         <div class="history" id="history"></div>
@@ -263,7 +263,139 @@
         </div>
     </div>
 
+    <!-- Notepad Modal -->
+    <div class="notepad-modal" id="notepadModal" role="dialog" aria-modal="true" aria-labelledby="notepadTitle" aria-hidden="true">
+        <div class="notepad-overlay" onclick="closeNotepad()"></div>
+        <div class="notepad-content">
+            <div class="notepad-header">
+                <h3 id="notepadTitle">المفكرة</h3>
+                <button class="notepad-header-save" onclick="saveNotepad()" title="حفظ كل الملاحظات">💾</button>
+                <button class="notepad-close" onclick="closeNotepad()" aria-label="إغلاق">×</button>
+            </div>
+            <div class="notepad-body">
+                <textarea id="notepadText" class="notepad-textarea" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            </div>
+            <div class="notepad-footer">
+
+                <div class="notepad-tools">
+                    <button type="button" class="symbol-toggle-btn" onclick="toggleNotepadSymbols()" title="إظهار الرموز">🔣 الرموز</button>
+                    <div class="notepad-symbols-popup" id="notepadSymbolsPopup" style="display:none;">
+                        <div class="symbols-section">
+                            <div class="symbols-title">🔢 رموز رياضية</div>
+                            <div class="symbols-grid">
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('π')" title="باي">π</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('√')" title="جذر تربيعي">√</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∑')" title="مجموع">∑</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∆')" title="دلتا">∆</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∞')" title="لانهاية">∞</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('≤')" title="أقل من أو يساوي">≤</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('≥')" title="أكبر من أو يساوي">≥</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('≠')" title="لا يساوي">≠</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('±')" title="زائد أو ناقص">±</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('÷')" title="قسمة">÷</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('×')" title="ضرب">×</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('θ')" title="ثيتا">θ</button>
+                            </div>
+                        </div>
+                        <div class="symbols-section">
+                            <div class="symbols-title">📐 رموز هندسية</div>
+                            <div class="symbols-grid">
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('Ω')" title="أوميجا">Ω</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('µ')" title="ميكرو">µ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('°')" title="درجة">°</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('Φ')" title="فاي">Φ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∠')" title="زاوية">∠</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('⟂')" title="عمودي">⟂</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∥')" title="متوازي">∥</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('▲')" title="مثلث">▲</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('■')" title="مربع">■</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('●')" title="دائرة">●</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∫')" title="تكامل">∫</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('∂')" title="مشتقة جزئية">∂</button>
+                            </div>
+                        </div>
+                        <div class="symbols-section">
+                            <div class="symbols-title">Α حروف يونانية</div>
+                            <div class="symbols-grid">
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('α')" title="ألفا">α</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('β')" title="بيتا">β</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('γ')" title="جاما">γ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('δ')" title="دلتا">δ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('ε')" title="إبسيلون">ε</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('λ')" title="لامدا">λ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('σ')" title="سيجما">σ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('ω')" title="أوميجا صغيرة">ω</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('ψ')" title="سي">ψ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('ξ')" title="كسي">ξ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('ζ')" title="زيتا">ζ</button>
+                                <button type="button" class="symbol-btn" onclick="insertSymbol('η')" title="إيتا">η</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- باقي الأدوات -->
+
+                    <!-- Tools Row -->
+                    <div class="tool-group">
+                        <label style="min-width: 50px;">الحجم:</label>
+                        <select id="fontSizeSelect" class="notepad-select" onchange="updateNotepadFontSize(this.value)">
+                            <option value="12">صغير</option>
+                            <option value="14" selected>عادي</option>
+                            <option value="16">متوسط</option>
+                            <option value="18">كبير</option>
+                        </select>
+                    </div>
+
+                    <div class="tool-group">
+                        <label style="min-width: 50px;">اللون:</label>
+                        <div class="color-picker">
+                            <button class="color-btn" style="background:#5cc7ff;" onclick="updateNotepadColor('#5cc7ff')" title="أزرق"></button>
+                            <button class="color-btn" style="background:#ffd166;" onclick="updateNotepadColor('#ffd166')" title="أصفر"></button>
+                            <button class="color-btn" style="background:#ff6b6b;" onclick="updateNotepadColor('#ff6b6b')" title="أحمر"></button>
+                            <button class="color-btn" style="background:#9b5de5;" onclick="updateNotepadColor('#9b5de5')" title="بنفسجي"></button>
+                            <button class="color-btn" style="background:#06d6a0;" onclick="updateNotepadColor('#06d6a0')" title="أخضر"></button>
+                            <button class="color-btn" style="background:#fff;border:1px solid #333;" onclick="updateNotepadColor('#fff')" title="أبيض"></button>
+                        </div>
+                    </div>
+
+                    <div class="tool-group">
+                        <label style="min-width: 50px;">الخط:</label>
+                        <select id="fontFamilySelect" class="notepad-select" onchange="updateNotepadFont(this.value)">
+                            <option value="'Segoe UI', sans-serif">افتراضي</option>
+                            <option value="'Courier New', monospace">أحادي</option>
+                            <option value="'Arial', sans-serif">أريال</option>
+                            <option value="'Georgia', serif">جورجيا</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="notepadSaveBtn" class="notepad-save-btn" onclick="saveNotepad()" title="حفظ">💾 حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // زر إظهار/إخفاء الرموز
+    function toggleNotepadSymbols() {
+        var popup = document.getElementById('notepadSymbolsPopup');
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+        }
+    }
+    // إغلاق الرموز عند الضغط خارجها
+    document.addEventListener('click', function(e) {
+        var popup = document.getElementById('notepadSymbolsPopup');
+        var btn = document.querySelector('.symbol-toggle-btn');
+        if (!popup || !btn) return;
+        if (popup.style.display === 'block' && !popup.contains(e.target) && e.target !== btn) {
+            popup.style.display = 'none';
+        }
+    });
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="notepad.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
