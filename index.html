@@ -5,14 +5,671 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة Proxima</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .brand-clock-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-clock {
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-clock:hover {
+            background: rgba(0, 255, 255, 0.08);
+            border-color: rgba(0, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .header-clock:active {
+            transform: scale(0.95);
+        }
+
+        #header-clock-time {
+            color: #00ffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            font-family: system-ui, -apple-system, sans-serif;
+            text-shadow: 0 0 8px #00ffff;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+
+        @media (max-width: 480px) {
+            .brand-row {
+                gap: 8px;
+            }
+            .header-clock {
+                padding: 2px 6px;
+            }
+            #header-clock-time {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ===== Clock Settings Modal ===== */
+        #clockSettingsModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-sizing: border-box;
+        }
+
+        #clockSettingsModal.show {
+            display: flex;
+        }
+
+        .clock-settings-content {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            background: linear-gradient(145deg, rgba(20, 10, 35, 0.96), rgba(10, 15, 30, 0.96));
+            border: 1px solid rgba(0, 255, 255, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.15), 0 0 20px rgba(184, 41, 255, 0.1);
+            color: #fff;
+            padding: 16px 20px;
+            animation: settingsScaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+        }
+
+        @keyframes settingsScaleUp {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .settings-close:hover {
+            color: #ff6b6b;
+        }
+
+        .settings-group {
+            margin-bottom: 14px;
+            text-align: right;
+        }
+
+        .settings-label {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .flex-row-reverse {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 22px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-switch {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: .3s;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .slider-switch:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #fff;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-switch {
+            background-color: #00ffff;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+
+        input:checked + .slider-switch:before {
+            transform: translateX(20px);
+            background-color: #001020;
+        }
+
+        .manual-time-inputs {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: opacity 0.3s ease;
+        }
+
+        .manual-time-inputs.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .time-input {
+            width: 50px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .time-input:focus {
+            border-color: #00ffff;
+        }
+
+        .time-input-sep {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: bold;
+        }
+
+        .ampm-select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            padding: 5px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .size-slider {
+            width: 100%;
+            accent-color: #00ffff;
+            background: rgba(255, 255, 255, 0.1);
+            height: 5px;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .color-preset-group {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .color-preset-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .color-preset-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .color-preset-btn.active {
+            border-color: #fff;
+            box-shadow: 0 0 8px var(--preset-glow, #fff);
+        }
+
+        .format-group {
+            display: flex;
+            flex-direction: row-reverse;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .format-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .format-btn.active {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        
+        /* App Title Premium Styles */
+        .calculator-brand {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .calculator-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .calculator-brand:active {
+            transform: scale(0.95);
+        }
+
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tech-icon {
+            font-size: 1.1rem;
+            filter: drop-shadow(0 0 4px #b829ff);
+        }
+
+        .proxima-text {
+            background: linear-gradient(135deg, #b829ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 15px rgba(184, 41, 255, 0.4);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body.dark .proxima-text {
+            background: linear-gradient(135deg, #d37cff, #80ffff);
+            -webkit-background-clip: text;
+            text-shadow: 0 0 20px rgba(211, 124, 255, 0.5);
+        }
+
+        /* ===== App Info Modal - Full Redesign ===== */
+        #appInfoModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-sizing: border-box;
+        }
+
+        #appInfoModal.show {
+            display: flex;
+        }
+
+        .glass-modal {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            max-height: 88vh;
+            background: linear-gradient(145deg, rgba(18, 10, 40, 0.95), rgba(10, 20, 50, 0.95));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(184, 41, 255, 0.35);
+            border-radius: 24px;
+            box-shadow:
+                0 0 0 1px rgba(0, 255, 255, 0.08),
+                0 20px 60px rgba(0, 0, 0, 0.55),
+                0 0 40px rgba(184, 41, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.85) translateY(20px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+        }
+
+        #appInfoModal.show .glass-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Modal Header */
+        .info-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        .info-modal-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-modal-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #b829ff, #00c8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(184, 41, 255, 0.5);
+            flex-shrink: 0;
+        }
+
+        .info-modal-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .info-modal-appname {
+            background: linear-gradient(135deg, #c86fff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            line-height: 1;
+        }
+
+        .info-modal-subtitle {
+            font-size: 0.75rem;
+            color: rgba(200, 200, 255, 0.6);
+            letter-spacing: 0.05em;
+        }
+
+        .info-modal-close {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+
+        .info-modal-close:hover, .info-modal-close:active {
+            background: rgba(255, 80, 80, 0.25);
+            color: #ff8080;
+            transform: scale(1.1);
+        }
+
+        /* Modal Body - Scrollable */
+        .info-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 16px 18px 20px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(184, 41, 255, 0.4) transparent;
+        }
+
+        .info-modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .info-modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .info-modal-body::-webkit-scrollbar-thumb {
+            background: rgba(184, 41, 255, 0.4);
+            border-radius: 4px;
+        }
+
+        /* Description */
+        .info-desc {
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: rgba(200, 215, 255, 0.85);
+            text-align: right;
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            border-right: 3px solid rgba(0, 200, 255, 0.5);
+        }
+
+        /* Section Title */
+        .info-section-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(0, 200, 255, 0.75);
+            margin-bottom: 10px;
+            margin-top: 18px;
+            padding-right: 2px;
+            text-align: right;
+        }
+
+        .info-section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Feature Cards Grid */
+        .info-cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 10px;
+            text-align: center;
+            transition: background 0.25s, border-color 0.25s, transform 0.2s;
+            cursor: default;
+            touch-action: manipulation;
+        }
+
+        .info-card:hover, .info-card:active {
+            background: rgba(184, 41, 255, 0.12);
+            border-color: rgba(184, 41, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .info-card-icon {
+            font-size: 1.6rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .info-card-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #e8e0ff;
+            margin-bottom: 4px;
+        }
+
+        .info-card-desc {
+            font-size: 0.72rem;
+            color: rgba(180, 180, 220, 0.65);
+            line-height: 1.5;
+        }
+
+        /* Feature List Items */
+        .info-feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.83rem;
+            color: rgba(210, 220, 255, 0.85);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 12px;
+            border-radius: 11px;
+            border-right: 2px solid rgba(184, 41, 255, 0.5);
+            transition: background 0.2s, border-color 0.2s;
+            text-align: right;
+        }
+
+        .info-feature-list li:hover {
+            background: rgba(184, 41, 255, 0.1);
+            border-right-color: #00ffff;
+        }
+
+        .info-feat-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Version Badge */
+        .info-version-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-version-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00ffaa;
+            box-shadow: 0 0 8px #00ffaa;
+            animation: versionPulse 2s infinite;
+        }
+
+        @keyframes versionPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .info-version-text {
+            font-size: 0.75rem;
+            color: rgba(200, 220, 255, 0.55);
+            letter-spacing: 0.08em;
+        }
+
+        @media (max-width: 420px) {
+            .glass-modal { border-radius: 18px; }
+            .info-modal-appname { font-size: 1.15rem; }
+            .info-cards-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .info-card { padding: 10px 8px; }
+            .info-card-icon { font-size: 1.4rem; }
+        }
+    </style>
 </head>
 <body>
     <div class="calculator">
         <div class="calculator-top">
-            <div class="calculator-brand">
-                <div class="app-title">Proxima</div>
+            <div class="brand-clock-container">
+                <div class="brand-row">
+                    <div class="calculator-brand" onclick="showAppInfo()" role="button" tabindex="0">
+                        <div class="app-title">
+                            <span class="tech-icon">💠</span>
+                            <span class="proxima-text">PROXIMA</span>
+                        </div>
+                    </div>
+                    <div class="header-clock" id="headerClock" onclick="showClockSettings(event)" role="button" tabindex="0" title="إعدادات الساعة">
+                        <span id="header-clock-time">--:--</span>
+                    </div>
+                </div>
                 <div class="app-tagline">حاسبة علمية متقدمة</div>
             </div>
+
             <div class="top-actions">
                 <button class="btn theme-toggle" onclick="toggleTheme()">🌙</button>
                 <button class="btn history-toggle" onclick="showHistory()" aria-label="عرض السجل">📜</button>
@@ -68,6 +725,150 @@
                 <button class="btn number" onclick="appendToDisplay('3')">3</button>
                 <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
                 <button class="btn decimal" onclick="appendToDisplay('.')">.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Info Modal - Premium Redesign -->
+    <div id="appInfoModal" role="dialog" aria-modal="true" aria-labelledby="appInfoTitle" aria-hidden="true">
+        <div class="glass-modal">
+
+            <!-- Header -->
+            <div class="info-modal-header">
+                <div class="info-modal-brand">
+                    <div class="info-modal-logo">💠</div>
+                    <div class="info-modal-titles">
+                        <span class="info-modal-appname" id="appInfoTitle">PROXIMA</span>
+                        <span class="info-modal-subtitle">Scientific Calculator</span>
+                    </div>
+                </div>
+                <button class="info-modal-close" onclick="closeAppInfo()" aria-label="إغلاق">✕</button>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="info-modal-body">
+
+                <!-- Description -->
+                <p class="info-desc">
+                    حاسبة ذكية وعصرية تجمع بين العمليات الحسابية، المفكرة، الرسم، والرموز الرياضية داخل مساحة عمل احترافية متكاملة.
+                </p>
+
+                <!-- Sections Grid -->
+                <div class="info-section-title">الأقسام الرئيسية</div>
+                <div class="info-cards-grid">
+                    <div class="info-card">
+                        <span class="info-card-icon">🔢</span>
+                        <div class="info-card-title">الحاسبة</div>
+                        <div class="info-card-desc">عمليات أساسية وعلمية بواجهة سريعة وسلسة</div>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-card-icon">📝</span>
+                        <div class="info-card-title">المفكرة الذكية</div>
+                        <div class="info-card-desc">كتابة ملاحظات ورسم حر بأدوات متعددة</div>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-card-icon">∑</span>
+                        <div class="info-card-title">الرموز</div>
+                        <div class="info-card-desc">رموز رياضية وهندسية وعلمية كاملة</div>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-card-icon">🎨</span>
+                        <div class="info-card-title">الرسم الحر</div>
+                        <div class="info-card-desc">قلم وفرشاة وأشكال وتحرير عناصر</div>
+                    </div>
+                </div>
+
+                <!-- Features List -->
+                <div class="info-section-title">المميزات</div>
+                <ul class="info-feature-list">
+                    <li><span class="info-feat-icon">✨</span>تصميم احترافي وتأثيرات Neon فاخرة</li>
+                    <li><span class="info-feat-icon">🌙</span>دعم الوضع الليلي والفاتح</li>
+                    <li><span class="info-feat-icon">📱</span>Mobile First — متوافق مع جميع الهواتف</li>
+                    <li><span class="info-feat-icon">⚡</span>أداء عالٍ وسرعة استجابة فائقة</li>
+                    <li><span class="info-feat-icon">🎵</span>أصوات تفاعلية واقعية للأزرار</li>
+                    <li><span class="info-feat-icon">🔄</span>سجل عمليات قابل للمراجعة</li>
+                </ul>
+
+                <!-- Version Bar -->
+                <div class="info-version-bar">
+                    <div class="info-version-dot"></div>
+                    <span class="info-version-text">PROXIMA v1.0.0 — All Systems Active</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Clock Settings Modal - Compact Premium Glass -->
+    <div id="clockSettingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle" aria-hidden="true">
+        <div class="clock-settings-content">
+            <!-- Header -->
+            <div class="settings-header">
+                <span class="settings-title" id="settingsModalTitle">إعدادات الساعة ⚙️</span>
+                <button class="settings-close" onclick="closeClockSettings()" aria-label="إغلاق">✕</button>
+            </div>
+
+            <!-- Body -->
+            <div class="settings-body">
+                <!-- Auto Time Switch -->
+                <div class="settings-group flex-row-reverse">
+                    <span class="settings-label" style="margin-bottom: 0;">تحديث تلقائي للوقت</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoTimeToggle" checked onchange="toggleAutoTime()">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+
+                <!-- Manual Inputs -->
+                <div class="settings-group">
+                    <span class="settings-label">ضبط الوقت يدوياً</span>
+                    <div class="manual-time-inputs disabled" id="manualTimeGroup">
+                        <select class="ampm-select" id="manualAmpmSelect" onchange="applyManualTime()">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                        <input type="number" class="time-input" id="manualMinInput" min="0" max="59" value="00" placeholder="MM" onchange="applyManualTime()">
+                        <span class="time-input-sep">:</span>
+                        <input type="number" class="time-input" id="manualHourInput" min="1" max="12" value="12" placeholder="HH" onchange="applyManualTime()">
+                    </div>
+                </div>
+
+                <!-- 12H vs 24H Select -->
+                <div class="settings-group">
+                    <span class="settings-label">نظام الوقت</span>
+                    <div class="format-group">
+                        <button class="format-btn active" id="format12Btn" onclick="setClockFormat(12)">12H</button>
+                        <button class="format-btn" id="format24Btn" onclick="setClockFormat(24)">24H</button>
+                    </div>
+                </div>
+
+                <!-- Colors Quick Select -->
+                <div class="settings-group">
+                    <span class="settings-label">لون خط النيون</span>
+                    <div class="color-preset-group">
+                        <button class="color-preset-btn active" style="background: #00ffff; --preset-glow: #00ffff;" onclick="setClockColor('#00ffff', this)"></button>
+                        <button class="color-preset-btn" style="background: #ff007f; --preset-glow: #ff007f;" onclick="setClockColor('#ff007f', this)"></button>
+                        <button class="color-preset-btn" style="background: #39ff14; --preset-glow: #39ff14;" onclick="setClockColor('#39ff14', this)"></button>
+                        <button class="color-preset-btn" style="background: #b829ff; --preset-glow: #b829ff;" onclick="setClockColor('#b829ff', this)"></button>
+                        <button class="color-preset-btn" style="background: #ffd700; --preset-glow: #ffd700;" onclick="setClockColor('#ffd700', this)"></button>
+                        <button class="color-preset-btn" style="background: #ffffff; --preset-glow: #ffffff;" onclick="setClockColor('#ffffff', this)"></button>
+                    </div>
+                </div>
+
+                <!-- Font Size Slider -->
+                <div class="settings-group">
+                    <span class="settings-label">حجم الخط</span>
+                    <input type="range" class="size-slider" id="clockSizeSlider" min="0.7" max="1.3" step="0.05" value="0.85" oninput="setClockSize(this.value)">
+                </div>
+
+                <!-- Effects Toggles -->
+                <div class="settings-group flex-row-reverse" style="margin-bottom: 6px;">
+                    <span class="settings-label" style="margin-bottom: 0;">تأثير الوهج (Glow)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="glowToggle" checked onchange="toggleClockGlow()">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
@@ -392,6 +1193,188 @@
             popup.style.display = 'none';
         }
     });
+
+    // تحديث الساعة النيون وإدارتها
+    let clockSettings = {
+        autoTime: true,
+        format: 12,
+        color: '#00ffff',
+        size: '0.85rem',
+        glow: true,
+        manualOffsetMs: 0
+    };
+
+    function updateNeonClock() {
+        const clockElement = document.getElementById('header-clock-time');
+        if (!clockElement) return;
+        
+        let now = new Date();
+        if (!clockSettings.autoTime) {
+            now = new Date(now.getTime() + clockSettings.manualOffsetMs);
+        }
+        
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let timeString = '';
+        
+        if (clockSettings.format === 12) {
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timeString = `${hours}:${minutes} ${ampm}`;
+        } else {
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timeString = `${hours}:${minutes}`;
+        }
+        
+        clockElement.textContent = timeString;
+
+        // تحديث حقول الإدخال عند التحديث التلقائي لتسهيل التعديل
+        if (clockSettings.autoTime && document.getElementById('clockSettingsModal').classList.contains('show')) {
+            let hr12 = now.getHours();
+            const ampm = hr12 >= 12 ? 'PM' : 'AM';
+            hr12 = hr12 % 12;
+            hr12 = hr12 ? hr12 : 12;
+            
+            document.getElementById('manualHourInput').value = hr12;
+            document.getElementById('manualMinInput').value = minutes < 10 ? '0' : '';
+            document.getElementById('manualMinInput').value += minutes;
+            document.getElementById('manualAmpmSelect').value = ampm;
+        }
+    }
+
+    function showClockSettings(event) {
+        event.stopPropagation();
+        const modal = document.getElementById('clockSettingsModal');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        
+        // تحديث الحقول المبدئية عند الفتح
+        updateNeonClock();
+    }
+
+    function closeClockSettings() {
+        const modal = document.getElementById('clockSettingsModal');
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function toggleAutoTime() {
+        const autoTime = document.getElementById('autoTimeToggle').checked;
+        clockSettings.autoTime = autoTime;
+        
+        const manualGroup = document.getElementById('manualTimeGroup');
+        if (autoTime) {
+            manualGroup.classList.add('disabled');
+            clockSettings.manualOffsetMs = 0;
+        } else {
+            manualGroup.classList.remove('disabled');
+            applyManualTime();
+        }
+        updateNeonClock();
+    }
+
+    function applyManualTime() {
+        if (clockSettings.autoTime) return;
+        
+        let hr = parseInt(document.getElementById('manualHourInput').value) || 12;
+        let min = parseInt(document.getElementById('manualMinInput').value) || 0;
+        let ampm = document.getElementById('manualAmpmSelect').value;
+
+        if (hr < 1) hr = 1;
+        if (hr > 12) hr = 12;
+        if (min < 0) min = 0;
+        if (min > 59) min = 59;
+        
+        document.getElementById('manualHourInput').value = hr;
+        document.getElementById('manualMinInput').value = min < 10 ? '0' + min : min;
+
+        let hr24 = hr;
+        if (ampm === 'PM' && hr !== 12) hr24 += 12;
+        if (ampm === 'AM' && hr === 12) hr24 = 0;
+
+        const targetDate = new Date();
+        targetDate.setHours(hr24, min, 0, 0);
+
+        const now = new Date();
+        clockSettings.manualOffsetMs = targetDate.getTime() - now.getTime();
+        
+        updateNeonClock();
+    }
+
+    function setClockFormat(formatVal) {
+        clockSettings.format = formatVal;
+        document.getElementById('format12Btn').classList.toggle('active', formatVal === 12);
+        document.getElementById('format24Btn').classList.toggle('active', formatVal === 24);
+        updateNeonClock();
+    }
+
+    function setClockColor(colorVal, btnElement) {
+        clockSettings.color = colorVal;
+        const clockTimeSpan = document.getElementById('header-clock-time');
+        if (clockTimeSpan) {
+            clockTimeSpan.style.color = colorVal;
+            if (clockSettings.glow) {
+                clockTimeSpan.style.textShadow = `0 0 8px ${colorVal}`;
+            }
+        }
+        
+        const buttons = document.querySelectorAll('.color-preset-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+    }
+
+    function setClockSize(sizeVal) {
+        clockSettings.size = `${sizeVal}rem`;
+        const clockTimeSpan = document.getElementById('header-clock-time');
+        if (clockTimeSpan) {
+            clockTimeSpan.style.fontSize = `${sizeVal}rem`;
+        }
+    }
+
+    function toggleClockGlow() {
+        const glowEnabled = document.getElementById('glowToggle').checked;
+        clockSettings.glow = glowEnabled;
+        const clockTimeSpan = document.getElementById('header-clock-time');
+        if (clockTimeSpan) {
+            if (glowEnabled) {
+                clockTimeSpan.style.textShadow = `0 0 8px ${clockSettings.color}`;
+            } else {
+                clockTimeSpan.style.textShadow = 'none';
+            }
+        }
+    }
+
+    // App Info Modal Logic
+    function showAppInfo() {
+        const modal = document.getElementById('appInfoModal');
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAppInfo() {
+        const modal = document.getElementById('appInfoModal');
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        const infoModal = document.getElementById('appInfoModal');
+        const settingsModal = document.getElementById('clockSettingsModal');
+        
+        if (e.target === infoModal) {
+            closeAppInfo();
+        }
+        if (e.target === settingsModal) {
+            closeClockSettings();
+        }
+    });
+
+    setInterval(updateNeonClock, 1000);
+    updateNeonClock();
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
